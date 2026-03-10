@@ -34,3 +34,8 @@ public sealed class OrigemItemPedidoInvalidaException : DomainException
     public OrigemItemPedidoInvalidaException()
         : base("Um item de pedido deve referenciar um Produto ou um Combo, nunca os dois ou nenhum.") { }
 }
+
+public sealed class BusinessRuleException : DomainException
+{
+    public BusinessRuleException(string message) : base(message) { }
+}

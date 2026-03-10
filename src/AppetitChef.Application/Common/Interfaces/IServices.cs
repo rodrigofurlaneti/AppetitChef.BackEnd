@@ -17,6 +17,7 @@ public interface ICurrentUserService
     bool IsInRole(string role);
 }
 
+// IPasswordHasher mantido como alias de IPasswordService para compatibilidade
 public interface IPasswordHasher
 {
     string Hash(string password);

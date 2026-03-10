@@ -1,9 +1,8 @@
-﻿using AppetitChef.Domain.Entities;
-namespace AppetitChef.Domain.Interfaces
-{
+using AppetitChef.Domain.Entities;
 
-    public interface IReservaRepository : IRepository<Reserva>
-    {
-        Task<IEnumerable<Reserva>> GetByDataAsync(DateTime data, int filialId, CancellationToken ct = default);
-    }
+namespace AppetitChef.Domain.Interfaces;
+
+public interface IReservaRepository : IRepository<Reserva>
+{
+    Task<IEnumerable<Reserva>> GetByDataAsync(DateTime data, int filialId, CancellationToken ct = default);
 }

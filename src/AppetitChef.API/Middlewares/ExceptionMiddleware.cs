@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
+using AppetitChef.Application.Common.Exceptions;
 using AppetitChef.Domain.Exceptions;
-using FluentValidation;
 
 namespace AppetitChef.API.Middlewares;
 
@@ -24,34 +24,48 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
     {
         context.Response.ContentType = "application/json";
 
-        var (status, title, erros) = ex switch
+        HttpStatusCode status;
+        string title;
+        List<string> erros;
+
+        switch (ex)
         {
-            ValidationException ve => (
-                HttpStatusCode.BadRequest,
-                "Erro de validacao",
-                ve.Errors.Select(e => e.ErrorMessage).ToList()
-            ),
-            NotFoundException nfe => (
-                HttpStatusCode.NotFound,
-                "Recurso nao encontrado",
-                new List<string> { nfe.Message }
-            ),
-            BusinessRuleException bre => (
-                HttpStatusCode.UnprocessableEntity,
-                "Regra de negocio violada",
-                new List<string> { bre.Message }
-            ),
-            UnauthorizedAccessException => (
-                HttpStatusCode.Unauthorized,
-                "Nao autorizado",
-                new List<string> { "Acesso negado." }
-            ),
-            _ => (
-                HttpStatusCode.InternalServerError,
-                "Erro interno do servidor",
-                new List<string> { "Ocorreu um erro inesperado." }
-            )
-        };
+            case ValidationException ve:
+                status = HttpStatusCode.BadRequest;
+                title = "Erro de validacao";
+                erros = ve.Errors.SelectMany(e => e.Value).ToList();
+                break;
+            case NotFoundException nfe:
+                status = HttpStatusCode.NotFound;
+                title = "Recurso nao encontrado";
+                erros = new List<string> { nfe.Message };
+                break;
+            case BusinessRuleException bre:
+                status = HttpStatusCode.UnprocessableEntity;
+                title = "Regra de negocio violada";
+                erros = new List<string> { bre.Message };
+                break;
+            case UnauthorizedException uae:
+                status = HttpStatusCode.Unauthorized;
+                title = "Nao autorizado";
+                erros = new List<string> { uae.Message };
+                break;
+            case UnauthorizedAccessException:
+                status = HttpStatusCode.Unauthorized;
+                title = "Nao autorizado";
+                erros = new List<string> { "Acesso negado." };
+                break;
+            case InvalidOperationException ioe:
+                status = HttpStatusCode.BadRequest;
+                title = "Operacao invalida";
+                erros = new List<string> { ioe.Message };
+                break;
+            default:
+                status = HttpStatusCode.InternalServerError;
+                title = "Erro interno do servidor";
+                erros = new List<string> { "Ocorreu um erro inesperado." };
+                break;
+        }
 
         context.Response.StatusCode = (int)status;
         var response = new
@@ -61,6 +75,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
             erros,
             timestamp = DateTime.UtcNow
         };
+
         await context.Response.WriteAsync(JsonSerializer.Serialize(response,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
     }

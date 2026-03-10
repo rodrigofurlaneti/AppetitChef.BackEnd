@@ -1,14 +1,8 @@
-﻿using AppetitChef.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AppetitChef.Domain.Entities;
 
-namespace AppetitChef.Domain.Interfaces
+namespace AppetitChef.Domain.Interfaces;
+
+public interface IInsumoRepository : IRepository<Insumo>
 {
-    public interface IInsumoRepository : IRepository<Insumo>
-    {
-        Task<IEnumerable<Insumo>> GetCriticosAsync(CancellationToken ct = default);
-    }
+    Task<IEnumerable<Insumo>> GetCriticosAsync(CancellationToken ct = default);
 }

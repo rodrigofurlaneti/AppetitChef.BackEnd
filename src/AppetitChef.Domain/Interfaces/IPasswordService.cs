@@ -1,8 +1,7 @@
-﻿namespace AppetitChef.Domain.Interfaces
+namespace AppetitChef.Domain.Interfaces;
+
+public interface IPasswordService
 {
-    public interface IPasswordService
-    {
-        string Hash(string senha);
-        bool Verify(string senha, string hash);
-    }
+    string Hash(string senha);
+    bool Verify(string senha, string hash);
 }

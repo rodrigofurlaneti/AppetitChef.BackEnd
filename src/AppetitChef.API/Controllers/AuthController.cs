@@ -1,6 +1,5 @@
 using AppetitChef.Application.Features.Auth.Commands;
 using AppetitChef.Application.Features.Auth.Dtos;
-
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,7 +16,15 @@ public class AuthController(IMediator mediator) : BaseController(mediator)
     public async Task<IActionResult> Login([FromBody] LoginCommand command, CancellationToken ct)
     {
         var result = await Mediator.Send(command, ct);
-        if (!result.Sucesso) return Unauthorized(new { result.Erros });
-        return Ok(result.Dados);
+        return Ok(result);
+    }
+
+    /// <summary>Registra um novo funcionario</summary>
+    [HttpPost("registrar")]
+    [ProducesResponseType(typeof(int), 201)]
+    public async Task<IActionResult> Registrar([FromBody] RegistrarFuncionarioCommand command, CancellationToken ct)
+    {
+        var id = await Mediator.Send(command, ct);
+        return CreatedAtAction(nameof(Login), new { }, new { id });
     }
 }

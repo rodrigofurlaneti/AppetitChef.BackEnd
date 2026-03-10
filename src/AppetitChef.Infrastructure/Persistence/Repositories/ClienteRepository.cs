@@ -6,9 +6,9 @@ namespace AppetitChef.Infrastructure.Persistence.Repositories;
 
 public class ClienteRepository(AppetitChefDbContext ctx) : BaseRepository<Cliente>(ctx), IClienteRepository
 {
-    public async Task<Cliente?> GetByCpfAsync(string cpf, CancellationToken ct) =>
+    public async Task<Cliente?> GetByCpfAsync(string cpf, CancellationToken ct = default) =>
         await DbSet.FirstOrDefaultAsync(c => c.Cpf == cpf, ct);
 
-    public async Task<Cliente?> GetByEmailAsync(string email, CancellationToken ct) =>
+    public async Task<Cliente?> GetByEmailAsync(string email, CancellationToken ct = default) =>
         await DbSet.FirstOrDefaultAsync(c => c.Email == email, ct);
 }

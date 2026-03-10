@@ -1,15 +1,10 @@
-﻿using AppetitChef.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using AppetitChef.Domain.Entities;
 
-namespace AppetitChef.Domain.Interfaces
+namespace AppetitChef.Domain.Interfaces;
+
+public interface IProdutoRepository : IRepository<Produto>
 {
-    public interface IProdutoRepository : IRepository<Produto>
-    {
-        Task<IEnumerable<Produto>> GetDisponiveisAsync(CancellationToken ct = default);
-        Task<IEnumerable<Produto>> GetByCategoriaAsync(int categoriaId, CancellationToken ct = default);
-    }
+    Task<Produto?> GetByCodigoAsync(string codigo, CancellationToken ct = default);
+    Task<IEnumerable<Produto>> GetDisponiveisAsync(CancellationToken ct = default);
+    Task<IEnumerable<Produto>> GetByCategoriaAsync(int categoriaId, CancellationToken ct = default);
 }

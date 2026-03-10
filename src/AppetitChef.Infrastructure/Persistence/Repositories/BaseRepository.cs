@@ -10,7 +10,6 @@ public class BaseRepository<T>(AppetitChefDbContext context) : IRepository<T>
 {
     protected readonly DbSet<T> DbSet = context.Set<T>();
 
-    // Adicionamos 'virtual' para permitir 'override' nos repositórios específicos
     public virtual async Task<T?> GetByIdAsync(int id, CancellationToken ct = default) =>
         await DbSet.FindAsync([id], ct);
 

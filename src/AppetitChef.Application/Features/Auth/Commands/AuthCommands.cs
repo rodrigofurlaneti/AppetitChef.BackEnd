@@ -1,6 +1,6 @@
 using AppetitChef.Application.Common.Exceptions;
 using AppetitChef.Application.Common.Interfaces;
-using AppetitChef.Application.Features.Auth.Dtos; // IMPORTANTE: Para enxergar o LoginResponse
+using AppetitChef.Application.Features.Auth.Dtos;
 using AppetitChef.Domain.Entities;
 using AppetitChef.Domain.Interfaces;
 using FluentValidation;
@@ -8,47 +8,39 @@ using MediatR;
 
 namespace AppetitChef.Application.Features.Auth.Commands;
 
-// ── Login (Comando e Resposta) ──────────────────────────────────────────────
-
-// O comando agora solicita um LoginResponse (que está no seu arquivo separado)
+// ─── Login ───────────────────────────────────────────────────────────────────
 public record LoginCommand(string Login, string Senha) : IRequest<LoginResponse>;
 
 public class LoginCommandValidator : AbstractValidator<LoginCommand>
 {
     public LoginCommandValidator()
     {
-        RuleFor(x => x.Login).NotEmpty().WithMessage("Login é obrigatório.");
-        RuleFor(x => x.Senha).NotEmpty().WithMessage("Senha é obrigatória.");
+        RuleFor(x => x.Login).NotEmpty().WithMessage("Login e obrigatorio.");
+        RuleFor(x => x.Senha).NotEmpty().WithMessage("Senha e obrigatoria.");
     }
 }
 
 public class LoginCommandHandler(
     IUnitOfWork uow,
-    IPasswordHasher hasher, // Certifique-se que esta interface existe no Domain ou Application.Interfaces
+    IPasswordService hasher,
     IJwtService jwt) : IRequestHandler<LoginCommand, LoginResponse>
 {
     public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken ct)
     {
-        // 1. Busca o funcionário e carrega o Cargo (necessário para o Perfil)
         var funcionario = await uow.Funcionarios.GetByLoginAsync(request.Login, ct)
-            ?? throw new UnauthorizedException("Login ou senha inválidos.");
+            ?? throw new UnauthorizedException("Login ou senha invalidos.");
 
-        // 2. Validações de segurança
         if (!funcionario.Ativo)
-            throw new UnauthorizedException("Usuário inativo.");
+            throw new UnauthorizedException("Usuario inativo.");
 
         if (string.IsNullOrEmpty(funcionario.SenhaHash) || !hasher.Verify(request.Senha, funcionario.SenhaHash))
-            throw new UnauthorizedException("Login ou senha inválidos.");
+            throw new UnauthorizedException("Login ou senha invalidos.");
 
-        // 3. Preparação dos dados do Token
-        // Nota: Ajuste 'funcionario.Cargo.Nome' conforme o nome da propriedade na sua entidade Funcionario
         var roles = new[] { funcionario.Cargo?.Nome ?? "Funcionario" };
-
         var token = jwt.GenerateToken(funcionario, roles);
         var refreshToken = jwt.GenerateRefreshToken();
         var expiracao = DateTime.UtcNow.AddHours(8);
 
-        // 4. Retorno do DTO LoginResponse que você criou no outro arquivo
         return new LoginResponse(
             token,
             refreshToken,
@@ -60,8 +52,7 @@ public class LoginCommandHandler(
     }
 }
 
-// ── Registrar Funcionário ─────────────────────────────────────────────────────
-
+// ─── Registrar Funcionario ────────────────────────────────────────────────────
 public record RegistrarFuncionarioCommand(
     int FilialId,
     int CargoId,
@@ -89,21 +80,18 @@ public class RegistrarFuncionarioValidator : AbstractValidator<RegistrarFunciona
 
 public class RegistrarFuncionarioHandler(
     IUnitOfWork uow,
-    IPasswordHasher hasher) : IRequestHandler<RegistrarFuncionarioCommand, int>
+    IPasswordService hasher) : IRequestHandler<RegistrarFuncionarioCommand, int>
 {
     public async Task<int> Handle(RegistrarFuncionarioCommand request, CancellationToken ct)
     {
-        // Valida unicidade de Login
         var existente = await uow.Funcionarios.GetByLoginAsync(request.Login, ct);
         if (existente is not null)
-            throw new InvalidOperationException($"Login '{request.Login}' já está em uso.");
+            throw new InvalidOperationException($"Login '{request.Login}' ja esta em uso.");
 
-        // Valida unicidade de CPF
         var existenteCpf = await uow.Funcionarios.GetByCpfAsync(request.Cpf, ct);
         if (existenteCpf is not null)
-            throw new InvalidOperationException("CPF já cadastrado.");
+            throw new InvalidOperationException("CPF ja cadastrado.");
 
-        // Cria a entidade usando o Factory Method do Domain
         var funcionario = Funcionario.Criar(
             request.FilialId,
             request.CargoId,
@@ -114,12 +102,9 @@ public class RegistrarFuncionarioHandler(
             request.Email,
             request.Login);
 
-        // Define a senha hasheada
         funcionario.DefinirSenha(hasher.Hash(request.Senha));
-
         await uow.Funcionarios.AddAsync(funcionario, ct);
         await uow.CommitAsync(ct);
-
         return funcionario.Id;
     }
 }

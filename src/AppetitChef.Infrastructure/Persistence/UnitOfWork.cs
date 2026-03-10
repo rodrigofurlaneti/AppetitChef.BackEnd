@@ -13,7 +13,6 @@ public class UnitOfWork(AppetitChefDbContext context) : IUnitOfWork
     private IInsumoRepository? _insumos;
     private IFuncionarioRepository? _funcionarios;
 
-    // Implementação das propriedades da interface IUnitOfWork
     public IPedidoRepository Pedidos => _pedidos ??= new PedidoRepository(context);
     public IMesaRepository Mesas => _mesas ??= new MesaRepository(context);
     public IClienteRepository Clientes => _clientes ??= new ClienteRepository(context);

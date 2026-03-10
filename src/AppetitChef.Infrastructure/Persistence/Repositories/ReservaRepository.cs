@@ -11,15 +11,4 @@ public class ReservaRepository(AppetitChefDbContext ctx) : BaseRepository<Reserv
         await DbSet.Include(r => r.Cliente).Include(r => r.Mesa)
             .Where(r => r.FilialId == filialId && r.DataReserva.Date == data.Date)
             .OrderBy(r => r.DataReserva).ToListAsync(ct);
-
-    public async Task<IEnumerable<Reserva>> ListarPorDataAsync(int filialId, DateTime data, CancellationToken ct = default) =>
-        await DbSet.Include(r => r.Cliente).Include(r => r.Mesa)
-            .Where(r => r.FilialId == filialId && r.DataReserva.Date == data.Date)
-            .OrderBy(r => r.DataReserva).ToListAsync(ct);
-
-    public async Task<IEnumerable<Reserva>> ListarAtivasAsync(int filialId, CancellationToken ct = default) =>
-        await DbSet.Include(r => r.Cliente).Include(r => r.Mesa)
-            .Where(r => r.FilialId == filialId &&
-                        (r.Status == StatusReserva.Pendente || r.Status == StatusReserva.Confirmada))
-            .OrderBy(r => r.DataReserva).ToListAsync(ct);
 }

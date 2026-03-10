@@ -15,7 +15,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -34,10 +33,11 @@ services:
       - "5001:8081"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=appetitchef_dev;User=appetitchef;Password=appetitchef123;CharSet=utf8mb4;
-      - JwtSettings__SecretKey=AppetitChef@DevSecretKey!2025#Development
-      - JwtSettings__Issuer=AppetitChef
-      - JwtSettings__Audience=AppetitChef.Clients
+      - ConnectionStrings__Default=Server=mysql;Port=3306;Database=appetitchef_dev;User=appetitchef;Password=appetitchef123;CharSet=utf8mb4;
+      - Jwt__Secret=AppetitChef_Super_Secret_Key_2025_Minimo_32_Chars!
+      - Jwt__Issuer=AppetitChef
+      - Jwt__Audience=AppetitChefClients
+      - Jwt__ExpiracaoMinutos=480
     depends_on:
       mysql:
         condition: service_healthy

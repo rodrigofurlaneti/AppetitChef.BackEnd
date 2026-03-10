@@ -32,11 +32,13 @@ try
     app.UseGlobalExceptionHandling();
     app.UseSerilogRequestLogging();
 
-    if (app.Environment.IsDevelopment())
+    // Swagger disponivel em todos os ambientes para facilitar testes
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
     {
-        app.UseSwagger();
-        app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AppetitChef API v1"));
-    }
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "AppetitChef API v1");
+        c.RoutePrefix = "swagger";
+    });
 
     app.UseHttpsRedirection();
     app.UseCors("AppetitChefPolicy");
@@ -45,7 +47,7 @@ try
     app.MapControllers();
     app.MapHealthChecks("/health");
 
-    Log.Information("AppetitChef API iniciando na porta {Port}", builder.Configuration["ASPNETCORE_URLS"] ?? "5000");
+    Log.Information("AppetitChef API iniciando...");
     app.Run();
 }
 catch (Exception ex)
