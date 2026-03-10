@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+  # ── MySQL ──────────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: appetitchef_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: appetitchef_dev
+      MYSQL_USER: appetitchef
+      MYSQL_PASSWORD: appetitchef123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API ────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: appetitchef_api
+    restart: unless-stopped
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=mysql;Port=3306;Database=appetitchef_dev;User=appetitchef;Password=appetitchef123;CharSet=utf8mb4;
+      - JwtSettings__SecretKey=AppetitChef@DevSecretKey!2025#Development
+      - JwtSettings__Issuer=AppetitChef
+      - JwtSettings__Audience=AppetitChef.Clients
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
