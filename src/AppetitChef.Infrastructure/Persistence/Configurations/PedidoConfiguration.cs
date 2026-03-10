@@ -8,10 +8,10 @@ public class PedidoConfiguration : IEntityTypeConfiguration<Pedido>
 {
     public void Configure(EntityTypeBuilder<Pedido> builder)
     {
-        builder.ToTable("Pedidos");
+        builder.ToTable("pedidos");
         builder.HasKey(p => p.Id);
 
-        // COMENTADO: Se o erro CS1061 diz que Pedido não contém 'ValorTotal'
+        // COMENTADO: Se o erro CS1061 diz que Pedido nÃ£o contÃ©m 'ValorTotal'
         // builder.Property(p => p.ValorTotal).HasPrecision(18, 2);
 
         builder.HasOne(p => p.Mesa)

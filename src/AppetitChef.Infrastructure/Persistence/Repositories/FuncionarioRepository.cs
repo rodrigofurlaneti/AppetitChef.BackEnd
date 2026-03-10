@@ -7,8 +7,9 @@ namespace AppetitChef.Infrastructure.Persistence.Repositories;
 public class FuncionarioRepository(AppetitChefDbContext ctx) : BaseRepository<Funcionario>(ctx), IFuncionarioRepository
 {
     public async Task<Funcionario?> GetByLoginAsync(string login, CancellationToken ct = default) =>
-        await DbSet.Include(f => f.Cargo)
-                   .FirstOrDefaultAsync(f => f.Login == login, ct);
+        await DbSet
+            .Include(f => f.Cargo)
+            .FirstOrDefaultAsync(f => f.Login == login, ct);
 
     public async Task<Funcionario?> GetByCpfAsync(string cpf, CancellationToken ct = default) =>
         await DbSet.FirstOrDefaultAsync(f => f.Cpf == cpf, ct);

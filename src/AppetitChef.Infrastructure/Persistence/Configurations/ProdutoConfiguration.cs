@@ -1,4 +1,4 @@
-﻿using AppetitChef.Domain.Entities;
+ï»¿using AppetitChef.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -13,7 +13,7 @@ namespace AppetitChef.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Produto> b)
         {
-            b.ToTable("produto");
+            b.ToTable("produtos");
             b.HasIndex(x => x.Codigo).IsUnique();
             b.Property(x => x.PrecoVenda).HasPrecision(10, 2);
             b.Property(x => x.CustoEstimado).HasPrecision(10, 2);

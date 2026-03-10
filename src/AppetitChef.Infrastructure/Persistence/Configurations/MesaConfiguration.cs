@@ -1,4 +1,4 @@
-﻿using AppetitChef.Domain.Entities;
+ï»¿using AppetitChef.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;
@@ -13,7 +13,7 @@ namespace AppetitChef.Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<Mesa> b)
         {
-            b.ToTable("mesa");
+            b.ToTable("mesas");
             b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
 
             // Verifique se Area e Mesas existem no Domain. Se der erro, comente esta linha:
